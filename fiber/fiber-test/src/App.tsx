@@ -1,11 +1,13 @@
 import "./App.css";
-import { Glasses, Moon, Sun } from "lucide-react";
+import {  Moon, Sun } from "lucide-react";
 import type React from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { use, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Scene from "./components/Scene";
 import { Select, SelectItem } from "./components/Select";
+import { useSystemTheme } from "./components/custom-hooks/useSystemTheme";
+import useTheme from "./components/custom-hooks/useTheme";
 
-//label={<Glasses/>}
+
 
 interface Size {
 	width: number;
@@ -19,10 +21,26 @@ function App() {
 		React.Dispatch<React.SetStateAction<string>>,
 	] = useState("none");
 	const [sceneSize, setSceneSize] = useState<Size>({ width: 600, height: 600 });
-	const [theme, setTheme]: [
-		string,
-		React.Dispatch<React.SetStateAction<string>>,
-	] = useState(() => localStorage.getItem("theme") || "system");
+	const systemTheme = useSystemTheme()? "dark" : "light";
+	
+	        const [theme, setTheme]: [
+            string,
+            React.Dispatch<React.SetStateAction<string>>,
+        ] = useState(() => localStorage.getItem("theme") || systemTheme);
+
+
+	useEffect(() => {
+		localStorage.setItem("theme", theme);
+		
+			if (theme === "system") {
+				useTheme({ theme: systemTheme });
+			} else {
+				useTheme({ theme });
+			}
+		
+		
+	}, [theme]);
+	
 
 	useLayoutEffect(() => {
 		if (sceneRef.current) {
@@ -33,21 +51,6 @@ function App() {
 		}
 	}, []);
 
-	useEffect(() => {
-		const root = document.documentElement;
-
-		if (theme === "dark") {
-			root.style.colorScheme = "dark";
-			document.body.className = "dark-body";
-			localStorage.removeItem("theme");
-			console.log("dark chosen " + theme + " " + root.style.colorScheme);
-		} else {
-			root.style.colorScheme = theme;
-			document.body.className = "light-body";
-			localStorage.setItem("theme", theme);
-			console.log("else chosen " + theme + " " + root.style.colorScheme);
-		}
-	}, [theme]);
 
 	return (
 		<main>

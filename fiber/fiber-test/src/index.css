@@ -55,6 +55,7 @@ body {
 }
 
 .light-body {
+	--text-color: rgb(38, 37, 37);
 	background: var(--boddy-background);
 	background-image: var(--background-image);
 }
