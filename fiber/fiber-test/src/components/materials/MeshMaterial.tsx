@@ -3,7 +3,6 @@ import type * as THREE from "three";
 type MeshMaterialProps = {
 	mat?: THREE.MeshStandardMaterial;
 	isEmisive?: boolean;
-	color?: string | undefined;
 	reference?:
 		| THREE.MeshStandardMaterial
 		| THREE.MeshBasicMaterial
@@ -15,7 +14,6 @@ type MeshMaterialProps = {
 export default function DeskMaterial({
 	mat,
 	isEmisive,
-	color,
 	reference,
 }: MeshMaterialProps) {
 	if (!mat) return null;
@@ -26,7 +24,6 @@ export default function DeskMaterial({
 				{...mat}
 				// polygonOffset
 				// polygonOffsetFactor={-1}
-				color={color==="none"? "rgba(255, 255, 255, 0)" : color}
 				transparent
 				opacity={1}
 				emissive={isEmisive ? 100 : 0}
@@ -41,7 +38,6 @@ export default function DeskMaterial({
 			{...mat}
 			// polygonOffset
 			// polygonOffsetFactor={-1}
-			color={color==="none"? undefined : color}
 			transparent
 			opacity={1}
 			emissive={isEmisive ? 100 : 0}

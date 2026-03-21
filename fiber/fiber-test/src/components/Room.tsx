@@ -1,20 +1,22 @@
 import {
 	Box,
 	CameraControls,
-	Decal,
 	Html,
 	OrthographicCamera,
 	useAnimations,
 	useGLTF,
 	useHelper,
+	useTexture,
 } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { easing } from "maath"; // npm install maath
 import type React from "react";
 import {
 	useCallback,
+	useMemo,
 	useEffect,
 	useEffectEvent,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
@@ -55,6 +57,9 @@ type RoomGLTF = GLTF & {
 		curtain: THREE.MeshStandardMaterial;
 		bed: THREE.MeshStandardMaterial;
 		desk: THREE.MeshStandardMaterial;
+		desk001: THREE.MeshStandardMaterial;
+		desk002: THREE.MeshStandardMaterial;
+		desk003: THREE.MeshStandardMaterial;
 		screen: THREE.MeshStandardMaterial;
 		model: THREE.MeshStandardMaterial;
 	};
@@ -83,7 +88,7 @@ interface RoomProps {
 	camRotation?: THREE.Euler;
 	width?: any;
 	height?: any;
-  color?: string;
+    color?: unknown | string | THREE.ColorRepresentation;
 }
 
 export default function Room({ height, width, color }: RoomProps) {
@@ -117,6 +122,9 @@ export default function Room({ height, width, color }: RoomProps) {
 	const curtainMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const bedMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const deskMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
+	const desk001MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
+	const desk002MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
+	const desk003MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const screenMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const [backBtnVisible, setBackBtnVisible] = useState(false);
 	const [positions, setPositions] = useState<{
@@ -135,15 +143,26 @@ export default function Room({ height, width, color }: RoomProps) {
 		room: number;
 		curtain: number;
 	}>({ bed: 1.0, desk: 1.0, screen: 1.0, room: 1.0, curtain: 1.0 });
+
+	
+	const [customColors, setCustomColors] = useState<{
+		bed: THREE.Color|string|unknown;
+		desk: THREE.Color|string|unknown;
+		screen: THREE.Color|string|unknown;
+	}>({
+		bed: color,
+		desk: color,
+		screen: color,
+	});
 	const [raycast, setRaycast] = useState<boolean>(true);
 	const [isBedHovered, setIsBedHovered] = useState(false);
 	const [isDeskHovered, setIsDeskHovered] = useState(false);
 	const [isScreenHovered, setIsScreenHovered] = useState(false);
 	const [deskOpen, setDeskOpen] = useState(false);
+	const bedMaskTexture = useTexture('bedMask.webp')
+	const colorObj = useMemo(() => new THREE.Color(color as THREE.ColorRepresentation | string), []);
 
-	//const whatIsHovered = hovered
-
-	console.dir(nodes);
+		console.dir(nodes);
 	const lightRef = useRef(null!);
 	const directionalLightRef = useRef(null!);
 	const directionalLightRefTwo = useRef(null!);
@@ -151,6 +170,58 @@ export default function Room({ height, width, color }: RoomProps) {
 	//  useHelper(lightRef, PointLightHelper, 0.1, 'red')
 	//   useHelper(directionalLightRef, DirectionalLightHelper, 0.1, 'blue')
 	//   useHelper(directionalLightRefTwo, DirectionalLightHelper, 0.1, 'blue')
+
+	bedMaskTexture.colorSpace = THREE.NoColorSpace
+
+	//const whatIsHovered = hovered
+	
+
+useLayoutEffect(() => {
+  const mat = materials.bed;
+  if (!mat) return;
+
+  // Zapobiegamy ponownej kompilacji
+  if (mat.userData.shaderInjected) return;
+  mat.userData.shaderInjected = true;
+
+  // Podpinamy nasz istniejący obiekt koloru pod userData
+  mat.userData.customColor = { value: colorObj };
+  mat.userData.maskMap = { value: bedMaskTexture };
+
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.targetColor = mat.userData.customColor;
+    shader.uniforms.maskMap = mat.userData.maskMap;
+
+ // ... wewnątrz onBeforeCompile ...
+
+shader.fragmentShader = `
+  uniform vec3 targetColor;
+  uniform sampler2D maskMap;
+  ${shader.fragmentShader}
+`.replace(
+  `#include <map_fragment>`,
+  `
+  #include <map_fragment>
+  
+  // Używamy vMapUv (standard w nowych wersjach R3F/Three.js dla tekstur)
+  // Jeśli model ma teksturę 'map', vMapUv jest na pewno zdefiniowane
+  #ifdef USE_MAP
+    float mVal = texture2D(maskMap, vMapUv).r; 
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * targetColor, mVal);
+  #endif
+  `
+);
+
+  };
+  mat.needsUpdate = true;
+}, [materials.bed, bedMaskTexture]); // Ważne: colorObj NIE jest w tablicy zależności
+
+// 2. Aktualizacja koloru jest teraz banalnie prosta i bezpieczna
+useEffect(() => {
+  colorObj.set(color as THREE.ColorRepresentation | string);
+}, [color, colorObj]);
+
+
 
 	const cameraPositionReset = useCallback((): void => {
 		setVisibilities({
@@ -199,11 +270,50 @@ export default function Room({ height, width, color }: RoomProps) {
 		onHovered();
 	}, [hovered]);
 
+
+	const chengeColors = useEffectEvent( () => {
+
+
+		//materials.bed.userData.customColor.value.set(color as THREE.ColorRepresentation | string)
+		// materials.bed.color.set(color as THREE.ColorRepresentation | string);
+		// materials.desk.color.set(color as THREE.ColorRepresentation | string);
+		// materials.screen.color.set(color as THREE.ColorRepresentation | string);
+
+		setCustomColors({
+			bed: color,
+			desk: color,
+			screen: color,
+		});
+
+			// bedMaterialRef.current.color = materials.bed.color;
+			
+			// deskMaterialRef.current.color = materials.desk.color;
+			// desk001MaterialRef.current.color = materials.desk001.color;
+			// desk002MaterialRef.current.color = materials.desk002.color;
+			// desk003MaterialRef.current.color = materials.desk003.color;
+			// screenMaterialRef.current.color = materials.screen.color;
+	})
+
+	useEffect(() => {
+		chengeColors();
+	}, [color]);
+
+
+	const changeCustomColors = useEffectEvent(() => {
+		materials.bed.color.set(customColors.bed);
+		materials.desk.color.set(customColors.desk);
+		materials.screen.color.set(customColors.screen);
+	})
+
+
+	useEffect(() => {
+		changeCustomColors();
+	}, [customColors])
 	// const groupRef = useRef<THREE.Group>(null!)
 
 	//const lightRef = useRef<THREE.PointLight>(null!)
 
-	//  const { actions } = useAnimations(animations, group)
+
 
 	const onSelect = useEffectEvent(() => {
 		if (!backBtnVisible && isSelected.current) {
@@ -418,6 +528,7 @@ export default function Room({ height, width, color }: RoomProps) {
 			visibilities.bed,
 			0.3,
 		);
+
 	});
 
 	useFrame((state, delta): void => {
@@ -427,8 +538,29 @@ export default function Room({ height, width, color }: RoomProps) {
 			deskMaterialRef.current.opacity,
 			visibilities.desk,
 			0.3,
+		); 
+
+			desk001MaterialRef.current.opacity = THREE.MathUtils.lerp(
+			desk001MaterialRef.current.opacity,
+			visibilities.desk,
+			0.3,
 		);
+
+			desk002MaterialRef.current.opacity = THREE.MathUtils.lerp(
+			desk002MaterialRef.current.opacity,
+			visibilities.desk,
+			0.3,
+		);
+
+			desk003MaterialRef.current.opacity = THREE.MathUtils.lerp(
+			desk003MaterialRef.current.opacity,
+			visibilities.desk,
+			0.3,
+		);
+
 	});
+
+
 
 	useFrame((state, delta): void => {
 		easing.damp3(screenRef.current.position, positions.screen, 0.15, delta);
@@ -438,6 +570,7 @@ export default function Room({ height, width, color }: RoomProps) {
 			visibilities.screen,
 			0.3,
 		);
+
 	});
 
 	useFrame((state): void => {
@@ -649,7 +782,6 @@ export default function Room({ height, width, color }: RoomProps) {
 				>
 					<MeshMaterial
 						reference={deskMaterialRef}
-            color={color}
 						mat={materials.desk}
 						isEmisive={isDeskHovered}
 					/>
@@ -664,9 +796,8 @@ export default function Room({ height, width, color }: RoomProps) {
 						visible={backBtnVisible && visibilities.desk === 0 ? false : true}
 					>
 						<MeshMaterial
-							reference={undefined}
+							reference={desk001MaterialRef}
 							mat={materials.desk}
-              color={color}
 							isEmisive={isDeskHovered}
 						/>
 					</mesh>
@@ -681,9 +812,8 @@ export default function Room({ height, width, color }: RoomProps) {
 						visible={backBtnVisible && visibilities.desk === 0 ? false : true}
 					>
 						<MeshMaterial
-							reference={undefined}
+							reference={desk002MaterialRef}
 							mat={materials.desk}
-              color={color}
 							isEmisive={isDeskHovered}
 						/>
 					</mesh>
@@ -698,9 +828,8 @@ export default function Room({ height, width, color }: RoomProps) {
 						visible={backBtnVisible && visibilities.desk === 0 ? false : true}
 					>
 						<MeshMaterial
-							reference={undefined}
+							reference={desk003MaterialRef}
 							mat={materials.desk}
-              color={color}
 							isEmisive={isDeskHovered}
 						/>
 					</mesh>
