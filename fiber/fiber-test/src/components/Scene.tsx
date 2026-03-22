@@ -7,14 +7,14 @@ import FallbackComponent from "./FallbackComponent";
 //import { Selection, EffectComposer, Outline } from '@react-three/postprocessing'
 import Room from "./Room";
 
-export default function Scene({ ...props }) {
-	console.log(" Size " + props.size);
+export default function Scene({ color, size }: { color: string; size: { width: number; height: number } }) {
+	//console.log(" Size " + props.size);
 
 	return (
 		<div
 			style={{
-				width: props.size.width + "px",
-				height: props.size.height + "px",
+				width: size.width + "px",
+				height: size.height + "px",
 			}}
 		>
 			<Canvas shadows={true}>
@@ -26,7 +26,7 @@ export default function Scene({ ...props }) {
 				<ambientLight intensity={0.1} />
 
 				<Suspense fallback={<FallbackComponent />}>
-					<Room width={props.size.width} height={props.size.height} color={props.color} />
+					<Room width={size.width} height={size.height} color={color} />
 				</Suspense>
 			</Canvas>
 		</div>

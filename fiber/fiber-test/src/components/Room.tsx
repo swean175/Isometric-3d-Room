@@ -1,24 +1,19 @@
 import {
-	Box,
 	CameraControls,
 	Html,
 	OrthographicCamera,
 	useAnimations,
-	useGLTF,
-	useHelper,
-	useTexture,
+	useGLTF
 } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { easing } from "maath"; // npm install maath
 import type React from "react";
 import {
 	useCallback,
-	useMemo,
 	useEffect,
 	useEffectEvent,
-	useLayoutEffect,
 	useRef,
-	useState,
+	useState
 } from "react";
 import { Button } from "react-aria-components";
 import * as THREE from "three";
@@ -44,8 +39,10 @@ type RoomGLTF = GLTF & {
 		room: THREE.Mesh;
 		curtain: THREE.Mesh;
 		bed: THREE.Mesh;
+		bed001: THREE.Mesh;
 		desk: THREE.Mesh;
 		screen: THREE.Mesh;
+		screen001: THREE.Mesh;
 		desk001: THREE.Mesh;
 		desk002: THREE.Mesh;
 		desk003: THREE.Mesh;
@@ -56,11 +53,13 @@ type RoomGLTF = GLTF & {
 		room: THREE.MeshStandardMaterial;
 		curtain: THREE.MeshStandardMaterial;
 		bed: THREE.MeshStandardMaterial;
+		bed001: THREE.MeshStandardMaterial;
 		desk: THREE.MeshStandardMaterial;
 		desk001: THREE.MeshStandardMaterial;
 		desk002: THREE.MeshStandardMaterial;
 		desk003: THREE.MeshStandardMaterial;
 		screen: THREE.MeshStandardMaterial;
+		screen001: THREE.MeshStandardMaterial;
 		model: THREE.MeshStandardMaterial;
 	};
 
@@ -121,11 +120,13 @@ export default function Room({ height, width, color }: RoomProps) {
 	const roomMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const curtainMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const bedMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
+	const bed001MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const deskMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const desk001MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const desk002MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const desk003MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const screenMaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
+	const screen001MaterialRef = useRef<THREE.MeshStandardMaterial>(null!);
 	const [backBtnVisible, setBackBtnVisible] = useState(false);
 	const [positions, setPositions] = useState<{
 		bed: THREE.Vector3;
@@ -144,25 +145,15 @@ export default function Room({ height, width, color }: RoomProps) {
 		curtain: number;
 	}>({ bed: 1.0, desk: 1.0, screen: 1.0, room: 1.0, curtain: 1.0 });
 
-	
-	const [customColors, setCustomColors] = useState<{
-		bed: THREE.Color|string|unknown;
-		desk: THREE.Color|string|unknown;
-		screen: THREE.Color|string|unknown;
-	}>({
-		bed: color,
-		desk: color,
-		screen: color,
-	});
+
 	const [raycast, setRaycast] = useState<boolean>(true);
 	const [isBedHovered, setIsBedHovered] = useState(false);
 	const [isDeskHovered, setIsDeskHovered] = useState(false);
 	const [isScreenHovered, setIsScreenHovered] = useState(false);
 	const [deskOpen, setDeskOpen] = useState(false);
-	const bedMaskTexture = useTexture('bedMask.webp')
-	const colorObj = useMemo(() => new THREE.Color(color as THREE.ColorRepresentation | string), []);
 
-		console.dir(nodes);
+
+		//console.dir(nodes);
 	const lightRef = useRef(null!);
 	const directionalLightRef = useRef(null!);
 	const directionalLightRefTwo = useRef(null!);
@@ -171,55 +162,40 @@ export default function Room({ height, width, color }: RoomProps) {
 	//   useHelper(directionalLightRef, DirectionalLightHelper, 0.1, 'blue')
 	//   useHelper(directionalLightRefTwo, DirectionalLightHelper, 0.1, 'blue')
 
-	bedMaskTexture.colorSpace = THREE.NoColorSpace
 
-	//const whatIsHovered = hovered
+
+// const injectShader = (): void => {
+
+ 
+// }; 
+
+
+
+const chengeColors = useEffectEvent( () => {
+	let actualColor = color as THREE.ColorRepresentation | string | undefined;
+
+	 if (color === "none") {
+		actualColor = undefined
+	 } else {
+		actualColor = color as THREE.ColorRepresentation | string;
+	 }
+
+			//materials.bed.color.set(colorObj);
+			bedMaterialRef.current.color.set( new THREE.Color(actualColor));
+			deskMaterialRef.current.color.set( new THREE.Color(actualColor));
+			desk001MaterialRef.current.color.set(new THREE.Color(actualColor));
+			desk002MaterialRef.current.color.set(new THREE.Color(actualColor));
+			desk003MaterialRef.current.color.set(new THREE.Color(actualColor));
+			screenMaterialRef.current.color.set(new THREE.Color(actualColor));
 	
+	})
 
-useLayoutEffect(() => {
-  const mat = materials.bed;
-  if (!mat) return;
 
-  // Zapobiegamy ponownej kompilacji
-  if (mat.userData.shaderInjected) return;
-  mat.userData.shaderInjected = true;
 
-  // Podpinamy nasz istniejący obiekt koloru pod userData
-  mat.userData.customColor = { value: colorObj };
-  mat.userData.maskMap = { value: bedMaskTexture };
+	useEffect(() => {
+		chengeColors();
+	}, [color]);
 
-  mat.onBeforeCompile = (shader) => {
-    shader.uniforms.targetColor = mat.userData.customColor;
-    shader.uniforms.maskMap = mat.userData.maskMap;
-
- // ... wewnątrz onBeforeCompile ...
-
-shader.fragmentShader = `
-  uniform vec3 targetColor;
-  uniform sampler2D maskMap;
-  ${shader.fragmentShader}
-`.replace(
-  `#include <map_fragment>`,
-  `
-  #include <map_fragment>
-  
-  // Używamy vMapUv (standard w nowych wersjach R3F/Three.js dla tekstur)
-  // Jeśli model ma teksturę 'map', vMapUv jest na pewno zdefiniowane
-  #ifdef USE_MAP
-    float mVal = texture2D(maskMap, vMapUv).r; 
-    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * targetColor, mVal);
-  #endif
-  `
-);
-
-  };
-  mat.needsUpdate = true;
-}, [materials.bed, bedMaskTexture]); // Ważne: colorObj NIE jest w tablicy zależności
-
-// 2. Aktualizacja koloru jest teraz banalnie prosta i bezpieczna
-useEffect(() => {
-  colorObj.set(color as THREE.ColorRepresentation | string);
-}, [color, colorObj]);
 
 
 
@@ -271,44 +247,9 @@ useEffect(() => {
 	}, [hovered]);
 
 
-	const chengeColors = useEffectEvent( () => {
 
 
-		//materials.bed.userData.customColor.value.set(color as THREE.ColorRepresentation | string)
-		// materials.bed.color.set(color as THREE.ColorRepresentation | string);
-		// materials.desk.color.set(color as THREE.ColorRepresentation | string);
-		// materials.screen.color.set(color as THREE.ColorRepresentation | string);
 
-		setCustomColors({
-			bed: color,
-			desk: color,
-			screen: color,
-		});
-
-			// bedMaterialRef.current.color = materials.bed.color;
-			
-			// deskMaterialRef.current.color = materials.desk.color;
-			// desk001MaterialRef.current.color = materials.desk001.color;
-			// desk002MaterialRef.current.color = materials.desk002.color;
-			// desk003MaterialRef.current.color = materials.desk003.color;
-			// screenMaterialRef.current.color = materials.screen.color;
-	})
-
-	useEffect(() => {
-		chengeColors();
-	}, [color]);
-
-
-	const changeCustomColors = useEffectEvent(() => {
-		materials.bed.color.set(customColors.bed);
-		materials.desk.color.set(customColors.desk);
-		materials.screen.color.set(customColors.screen);
-	})
-
-
-	useEffect(() => {
-		changeCustomColors();
-	}, [customColors])
 	// const groupRef = useRef<THREE.Group>(null!)
 
 	//const lightRef = useRef<THREE.PointLight>(null!)
@@ -529,6 +470,12 @@ useEffect(() => {
 			0.3,
 		);
 
+			bed001MaterialRef.current.opacity = THREE.MathUtils.lerp(
+			bed001MaterialRef.current.opacity,
+			visibilities.bed,
+			0.3,
+		); 
+
 	});
 
 	useFrame((state, delta): void => {
@@ -570,6 +517,13 @@ useEffect(() => {
 			visibilities.screen,
 			0.3,
 		);
+
+			screen001MaterialRef.current.opacity = THREE.MathUtils.lerp(
+			screen001MaterialRef.current.opacity,
+			visibilities.screen,
+			0.3,
+		);
+
 
 	});
 
@@ -672,14 +626,14 @@ useEffect(() => {
 				>
 					{backBtnVisible && (
 						<Html center distanceFactor={0.005}>
-							<button className="backBtn" onClick={handleDeselectItem}>
+							<Button aria-label="back" aria-labelledby="backBtnLabel" className="backBtn" onClick={handleDeselectItem}>
 								↩ Back
-							</button>
+							</Button>
 						</Html>
 					)}
 					{backBtnVisible && positions.desk.x === 0 && (
 						<Html center distanceFactor={0.005}>
-							<Button className="openBtn" onClick={handleActions}>
+							<Button aria-label="open" aria-labelledby="openBtnLabel" className="openBtn" onClick={handleActions}>
 								{deskOpen ? "Close" : "Open"}
 							</Button>
 						</Html>
@@ -726,6 +680,22 @@ useEffect(() => {
 					scale={1}
 					visible={backBtnVisible && visibilities.bed === 0 ? false : true}
 				>
+
+					<mesh
+						name="bed001"
+						raycast={() => null}
+						geometry={nodes.bed001.geometry}
+						material={materials.bed}
+						scale={1}
+						visible={backBtnVisible && visibilities.bed === 0 ? false : true}
+					>
+						<MeshMaterial
+							reference={bed001MaterialRef}
+							mat={materials.bed}
+							isEmisive={isBedHovered}
+						/>
+					</mesh>
+
 					<MeshMaterial
 						reference={bedMaterialRef}
 						mat={materials.bed}
@@ -879,6 +849,21 @@ useEffect(() => {
 					scale={1}
 					visible={backBtnVisible && visibilities.screen === 0 ? false : true}
 				>
+
+					<mesh
+						name="screen001"
+						raycast={() => null}
+						geometry={nodes.screen001.geometry}
+						material={materials.screen}
+						scale={1}
+						visible={backBtnVisible && visibilities.screen === 0 ? false : true}
+					>
+						<MeshMaterial
+							reference={screen001MaterialRef}
+							mat={materials.screen}
+							isEmisive={isScreenHovered}
+						/>
+					</mesh>
 					<MeshMaterial
 						reference={screenMaterialRef}
 						mat={materials.screen}

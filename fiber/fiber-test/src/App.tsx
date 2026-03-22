@@ -19,7 +19,7 @@ function App() {
 	const [color, setColor]: [
 		string,
 		React.Dispatch<React.SetStateAction<string>>,
-	] = useState("none");
+	] = useState("rgb(211, 182, 96)");
 	const [sceneSize, setSceneSize] = useState<Size>({ width: 600, height: 600 });
 	const systemTheme = useSystemTheme()? "dark" : "light";
 	
@@ -56,7 +56,7 @@ function App() {
 		<main>
 			<section>
 				<aside>
-					<Select selectionMode={"single"} value={theme} onChange={setTheme}>
+					<Select selectionMode={"single"} aria-label="theme" aria-labelledby="themeLabel" value={theme} onChange={setTheme}>
 						<SelectItem textValue={"system"} id={"system"}>
 							System 💾
 						</SelectItem>
@@ -69,13 +69,13 @@ function App() {
 					</Select>
 				</aside>
 				<div className="controls">
-					<button  onClick={() => setColor("rgba(57, 29, 29, 0.4)")}>
+					<button aria-label="brown" aria-labelledby="brownBtnLabel" onClick={() => setColor("rgb(57, 29, 29)")}>
 						Dark
 					</button>
-					<button  onClick={() => setColor("none")}>
+					<button aria-label="neutral" aria-labelledby="neutralBtnLabel" onClick={() => setColor("rgb(211, 182, 96)")}>
 						Neutral
 					</button>
-					<button  onClick={() => setColor("rgba(237, 245, 16, 0.9)")}>
+					<button aria-label="bright" aria-labelledby="brightBtnLabel" onClick={() => setColor("none")}>
 						Bright
 					</button>
 				</div>
