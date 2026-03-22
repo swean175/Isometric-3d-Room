@@ -54,7 +54,7 @@ function App() {
 
 	return (
 		<main>
-			<section>
+			<section id="buttons">
 				<aside>
 					<Select selectionMode={"single"} aria-label="theme" aria-labelledby="themeLabel" value={theme} onChange={setTheme}>
 						<SelectItem textValue={"system"} id={"system"}>
