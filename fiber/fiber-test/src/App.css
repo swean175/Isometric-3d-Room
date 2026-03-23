@@ -47,6 +47,12 @@ section{
 	gap: 1em;
 }
 
+.fallback{
+	margin:auto;
+	width: 100%;
+	font-size: 5em;
+}
+
 .backBtn {
 	position: relative;
 	margin-top: 500px;
