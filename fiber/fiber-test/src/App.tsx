@@ -1,7 +1,7 @@
 import "./App.css";
 import {  Moon, Sun } from "lucide-react";
 import type React from "react";
-import { use, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Scene from "./components/Scene";
 import { Select, SelectItem } from "./components/Select";
 import { useSystemTheme } from "./components/custom-hooks/useSystemTheme";

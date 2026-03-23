@@ -210,7 +210,7 @@ const chengeColors = useEffectEvent( () => {
 		cameraRef.current.position.set(9.985, 11.939, 9.892);
 		cameraRef.current.rotation.set(-0.527, 0.786, 0.39);
 		//controlsRef.current.enabled = false
-		controlsRef.current.zoomTo(70, true);
+		controlsRef.current.zoomTo(60, true);
 		controlsRef.current.enabled = true;
 		console.log("reset");
 
@@ -262,7 +262,7 @@ const chengeColors = useEffectEvent( () => {
 			controlsRef.current.enabled = false;
 			controlsRef.current.setLookAt(1.5, 2, 2, 1, -2, 0, true);
 			setBackBtnVisible(true);
-			controlsRef.current.zoomTo(150, true);
+			controlsRef.current.zoomTo(120, true);
 			controlsRef.current.enabled = true;
 		} else if (backBtnVisible && !raycast) {
 			isZooming.current = false;
@@ -285,7 +285,7 @@ const chengeColors = useEffectEvent( () => {
 			if (!controlsRef.current) return;
 			controlsRef.current.enabled = false;
 
-			controlsRef.current.zoomTo(90, true);
+			controlsRef.current.zoomTo(80, true);
 			controlsRef.current.setLookAt(
 				side ? 5 : coor.x + 9,
 				side ? 3 : wall ? coor.y + 2.5 : coor.y + 0.15,
@@ -608,7 +608,7 @@ const chengeColors = useEffectEvent( () => {
 				<OrthographicCamera
 					ref={cameraRef}
 					name="camera"
-					zoom={70}
+					zoom={60}
 					onUpdate={(self) => {
 						const aspect = width / height;
 						const frustumSize: number = 400; // Stała określająca ile jednostek świata widać

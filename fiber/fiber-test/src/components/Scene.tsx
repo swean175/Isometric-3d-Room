@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
+import "../App.css";
 
 //import { Html} from '@react-three/drei'
 
@@ -12,9 +13,12 @@ export default function Scene({ color, size }: { color: string; size: { width: n
 
 	return (
 		<div
-			style={{
+			aria-label="3D Scene"
+			style={size.width>578 ? {
 				width: size.width + "px",
 				height: size.height + "px",
+			} : {
+				margin: "auto;"
 			}}
 		>
 			<Canvas shadows={true}>
