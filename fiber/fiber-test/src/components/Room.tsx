@@ -268,8 +268,6 @@ export default function Room({ height, width, color }: RoomProps) {
 				coor.z,
 				true,
 			);
-
-			//setRaycast(true)
 			controlsRef.current.enabled = true;
 		},
 		[],
@@ -278,10 +276,8 @@ export default function Room({ height, width, color }: RoomProps) {
 	const handleZoomIn = useCallback(
 		(e: eventObject) => {
 			e.stopPropagation();
-			console.log("handleZoomIn");
 			if (isZooming.current) return;
 
-			console.log("handleZoom should run");
 			const name = e.eventObject.name;
 
 			if (isPressed.current) return;
@@ -313,14 +309,6 @@ export default function Room({ height, width, color }: RoomProps) {
 
 	const handleSelect = useCallback(
 		async (item: eventObject): Promise<void> => {
-			console.log("handleSelect item: " + item.eventObject.name);
-			console.log(
-				"isSeleceted: " +
-					isSelected.current +
-					" isZooming: " +
-					isZooming.current,
-			);
-			console.log("raycast: " + raycast);
 
 			if (!isSelected.current && raycast) {
 				const it: string = item.eventObject.name;
@@ -329,7 +317,6 @@ export default function Room({ height, width, color }: RoomProps) {
 
 				let yPos = 1.7;
 				await setRaycast(false);
-				console.log("Object selected");
 				if (it === "desk") {
 					yPos = 1.35;
 				}
@@ -346,19 +333,13 @@ export default function Room({ height, width, color }: RoomProps) {
 				};
 				await setVisibilities(newVis);
 
-				console.log("handleSelect object key " + it);
-				console.log("visibilities " + visibilities);
-				console.dir(visibilities);
-				//setTimeout(() => {
 				setPositions(newPos);
-				//},150)
 			}
 		},
 		[positions, visibilities, raycast],
 	);
 
 	const handleDeselectItem = useCallback((): void => {
-		console.log("handleDeselectItem");
 
 		setPositions({
 			bed: new THREE.Vector3(-0.36, 0.48, 0.8),
@@ -369,7 +350,6 @@ export default function Room({ height, width, color }: RoomProps) {
 
 	const onEnter = useCallback(
 		(e: eventObject) => {
-			console.log("onEnter");
 			e.stopPropagation();
 
 			if (
@@ -388,7 +368,6 @@ export default function Room({ height, width, color }: RoomProps) {
 
 	const onLeave = useCallback(
 		(e: eventObject) => {
-			console.log("onLeave");
 			e.stopPropagation();
 			if (!backBtnVisible && !isSelected.current) {
 				controlsRef.current.enabled = false;
@@ -433,7 +412,6 @@ export default function Room({ height, width, color }: RoomProps) {
 	}
 
 	useFrame((state, delta): void => {
-		// const time = state.clock.getElapsedTime()
 
 		easing.damp3(bedRef.current.position, positions.bed, 0.15, delta);
 
@@ -541,8 +519,6 @@ export default function Room({ height, width, color }: RoomProps) {
 				onRest={() => {
 					isZooming.current = false;
 					controlsRef.current.enabled = true;
-					console.log("Kamera zaparkowała");
-					console.log("raycast " + raycast);
 				}}
 				// Wywoływane przy ruchu kamery
 				onStart={() => {

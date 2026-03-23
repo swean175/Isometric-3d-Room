@@ -33,7 +33,7 @@ export function Select<
 	return (
 		<AriaSelect style={{ margin: "-30px auto auto 0px" }} {...props}>
 			{label && (
-				<Label style={{ marginLeft: "-170px", fontSize: "1.5em" }}>
+				<Label id="select-theme-label" style={{ marginLeft: "-170px", fontSize: "1.5em" }}>
 					{label}
 				</Label>
 			)}
