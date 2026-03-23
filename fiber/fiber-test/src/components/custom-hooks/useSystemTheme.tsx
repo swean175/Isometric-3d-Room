@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 export function useSystemTheme() {
-  // Sprawdzamy początkowy stan systemu
-  const [isDark, setIsDark] = useState(
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+	// Sprawdzamy początkowy stan systemu
+	const [isDark, setIsDark] = useState(
+		window.matchMedia("(prefers-color-scheme: dark)").matches,
+	);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    // Funkcja aktualizująca stan po zmianie w systemie
-    const handleChange = (event: MediaQueryListEvent) => setIsDark(event.matches);
+	useEffect(() => {
+		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-    // Nasłuchiwanie na zmiany (nowoczesna składnia)
-    mediaQuery.addEventListener('change', handleChange);
+		// Funkcja aktualizująca stan po zmianie w systemie
+		const handleChange = (event: MediaQueryListEvent) =>
+			setIsDark(event.matches);
 
-    // Sprzątanie po odmontowaniu komponentu
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+		// Nasłuchiwanie na zmiany (nowoczesna składnia)
+		mediaQuery.addEventListener("change", handleChange);
 
-  return isDark ? 'dark' : 'light';
+		// Sprzątanie po odmontowaniu komponentu
+		return () => mediaQuery.removeEventListener("change", handleChange);
+	}, []);
+
+	return isDark ? "dark" : "light";
 }

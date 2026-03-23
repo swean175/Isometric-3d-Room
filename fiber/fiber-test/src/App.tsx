@@ -1,13 +1,10 @@
-import "./App.css";
-import {  Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import type React from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Scene from "./components/Scene";
-import { Select, SelectItem } from "./components/Select";
 import { useSystemTheme } from "./components/custom-hooks/useSystemTheme";
 import useTheme from "./components/custom-hooks/useTheme";
-
-
+import Scene from "./components/Scene";
+import { Select, SelectItem } from "./components/Select";
 
 interface Size {
 	width: number;
@@ -21,26 +18,22 @@ function App() {
 		React.Dispatch<React.SetStateAction<string>>,
 	] = useState("rgb(211, 182, 96)");
 	const [sceneSize, setSceneSize] = useState<Size>({ width: 600, height: 600 });
-	const systemTheme = useSystemTheme()? "dark" : "light";
-	
-	        const [theme, setTheme]: [
-            string,
-            React.Dispatch<React.SetStateAction<string>>,
-        ] = useState(() => localStorage.getItem("theme") || systemTheme);
+	const systemTheme = useSystemTheme() ? "dark" : "light";
 
+	const [theme, setTheme]: [
+		string,
+		React.Dispatch<React.SetStateAction<string>>,
+	] = useState(() => localStorage.getItem("theme") || systemTheme);
 
 	useEffect(() => {
 		localStorage.setItem("theme", theme);
-		
-			if (theme === "system") {
-				useTheme({ theme: systemTheme });
-			} else {
-				useTheme({ theme });
-			}
-		
-		
+
+		if (theme === "system") {
+			useTheme({ theme: systemTheme });
+		} else {
+			useTheme({ theme });
+		}
 	}, [theme]);
-	
 
 	useLayoutEffect(() => {
 		if (sceneRef.current) {
@@ -51,12 +44,17 @@ function App() {
 		}
 	}, []);
 
-
 	return (
 		<main>
 			<section id="buttons">
 				<aside>
-					<Select selectionMode={"single"} aria-label="theme" aria-labelledby="themeLabel" value={theme} onChange={setTheme}>
+					<Select
+						selectionMode={"single"}
+						aria-label="theme"
+						aria-labelledby="themeLabel"
+						value={theme}
+						onChange={setTheme}
+					>
 						<SelectItem textValue={"system"} id={"system"}>
 							System 💾
 						</SelectItem>
@@ -69,13 +67,25 @@ function App() {
 					</Select>
 				</aside>
 				<div className="controls">
-					<button aria-label="brown" aria-labelledby="brownBtnLabel" onClick={() => setColor("rgb(57, 29, 29)")}>
+					<button
+						aria-label="brown"
+						aria-labelledby="brownBtnLabel"
+						onClick={() => setColor("rgb(57, 29, 29)")}
+					>
 						Dark
 					</button>
-					<button aria-label="neutral" aria-labelledby="neutralBtnLabel" onClick={() => setColor("rgb(211, 182, 96)")}>
+					<button
+						aria-label="neutral"
+						aria-labelledby="neutralBtnLabel"
+						onClick={() => setColor("rgb(211, 182, 96)")}
+					>
 						Neutral
 					</button>
-					<button aria-label="bright" aria-labelledby="brightBtnLabel" onClick={() => setColor("none")}>
+					<button
+						aria-label="bright"
+						aria-labelledby="brightBtnLabel"
+						onClick={() => setColor("none")}
+					>
 						Bright
 					</button>
 				</div>

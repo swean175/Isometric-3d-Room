@@ -36,7 +36,7 @@ main {
 	background: var(--scene-background);
 }
 
-section{
+section {
 	width: 100%;
 }
 
@@ -47,8 +47,8 @@ section{
 	gap: 1em;
 }
 
-.fallback{
-	margin:auto;
+.fallback {
+	margin: auto;
 	width: 100%;
 	font-size: 5em;
 }
@@ -59,16 +59,12 @@ section{
 	margin-left: -60vw;
 	width: 5em;
 	height: 4em;
-	/* background-color: #000;
-  color: #fff */
 }
 
 .openBtn {
 	position: relative;
 	margin-top: 300px;
 	margin-left: -60vw;
-	/* width: 5em;
-  height: 4em; */
 }
 
 .dimen {
@@ -91,18 +87,13 @@ section{
 	color: #888;
 }
 
-/* @media (prefers-color-scheme: dark) {
-#scene{
-  background: var(--scene-background-dark);
-}
-} */
-
 @media (max-width: 578px) {
-	#root{
-		margin:0px;
+	#root {
+		margin: 0px;
 		height: 100vh;
 	}
-	.light-body, .dark-body {
+	.light-body,
+	.dark-body {
 		background-image: none;
 	}
 	main {
@@ -119,18 +110,16 @@ section{
 		margin-right: auto;
 		width: 100%;
 	}
-	#scene>div {
+	#scene > div {
 		height: clamp(300px, 100%, 500px);
 		width: clamp(200px, 90%, 400px);
-
 	}
 	#buttons {
 		display: flex;
 		flex-direction: row;
 		gap: 1em;
-		justify-content:space-evenly;
-		align-items:top;
-		
+		justify-content: space-evenly;
+		align-items: top;
 	}
 	.controls {
 		width: 30%;
@@ -138,9 +127,8 @@ section{
 		flex-direction: column;
 		justify-content: center;
 		gap: 1em;
-
 	}
-	aside{
+	aside {
 		margin-top: 2em;
 	}
 }
